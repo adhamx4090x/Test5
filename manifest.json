@@ -1,0 +1,79 @@
+{
+    "name": "NeuralVoice OS",
+    "short_name": "NeuralVoice",
+    "description": "Local AI Voice Operating System - Professional Offline Voice Production Workstation",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "landscape-primary",
+    "background_color": "#0a0b10",
+    "theme_color": "#00f0ff",
+    "icons": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><defs><linearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'><stop offset='0%25' style='stop-color:%2300f0ff'/><stop offset='100%25' style='stop-color:%23ff0055'/></linearGradient></defs><circle cx='24' cy='24' r='20' stroke='url(%23g)' stroke-width='2' fill='none'/><path d='M24 8 L24 16 M24 32 L24 40 M8 24 L16 24 M32 24 L40 24' stroke='url(%23g)' stroke-width='2'/><circle cx='24' cy='24' r='8' fill='url(%23g)'/></svg>",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": ["productivity", "music", "audio"],
+    "screenshots": [
+        {
+            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1280' height='720' viewBox='0 0 1280 720'><rect width='1280' height='720' fill='%230a0b10'/><text x='640' y='360' fill='%2300f0ff' font-family='system-ui' font-size='24' text-anchor='middle'>NeuralVoice OS</text></svg>",
+            "sizes": "1280x720",
+            "type": "image/svg+xml",
+            "form_factor": "wide",
+            "label": "NeuralVoice OS Interface"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "New Project",
+            "short_name": "New",
+            "description": "Create a new voice project",
+            "url": "./index.html?action=new",
+            "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><rect x='3' y='3' width='18' height='18' rx='2' fill='none' stroke='%2300f0ff' stroke-width='2'/><line x1='12' y1='8' x2='12' y2='16' stroke='%2300f0ff' stroke-width='2'/><line x1='8' y1='12' x2='16' y2='12' stroke='%2300f0ff' stroke-width='2'/></svg>", "sizes": "96x96" }]
+        },
+        {
+            "name": "Record Voice",
+            "short_name": "Record",
+            "description": "Start recording voice",
+            "url": "./index.html?action=record",
+            "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><circle cx='12' cy='12' r='8' fill='none' stroke='%23ff0055' stroke-width='2'/><circle cx='12' cy='12' r='3' fill='%23ff0055'/></svg>", "sizes": "96x96" }]
+        },
+        {
+            "name": "Export",
+            "short_name": "Export",
+            "description": "Export project",
+            "url": "./index.html?action=export",
+            "icons": [{ "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4' fill='none' stroke='%2300ff88' stroke-width='2'/><polyline points='7 10 12 15 17 10' fill='none' stroke='%2300ff88' stroke-width='2'/><line x1='12' y1='15' x2='12' y2='3' stroke='%2300ff88' stroke-width='2'/></svg>", "sizes": "96x96" }]
+        }
+    ],
+    "related_applications": [],
+    "prefer_related_applications": false,
+    "display_override": ["window-controls-overlay", "standalone", "browser"],
+    "edge_side_panel": {
+        "preferred_width": 400
+    },
+    "protocol_handlers": [
+        {
+            "protocol": "web+neuralvoice",
+            "url": "./index.html?protocol=%s"
+        }
+    ],
+    "share_target": {
+        "action": "./index.html",
+        "method": "POST",
+        "enctype": "multipart/form-data",
+        "params": {
+            "title": "title",
+            "text": "text",
+            "url": "url",
+            "files": [
+                {
+                    "name": "audio",
+                    "accept": ["audio/*", ".wav", ".mp3", ".ogg", ".m4a"]
+                }
+            ]
+        }
+    }
+}

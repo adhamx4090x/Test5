@@ -1,0 +1,41 @@
+[package]
+name = "local-ai-voice-os"
+version = "1.0.0"
+description = "Local AI Voice Operating System - A 100% offline, local-first professional voice operating system"
+authors = ["MiniMax Agent"]
+edition = "2021"
+rust-version = "1.60"
+
+[build-dependencies]
+tauri-build = { version = "2.0.0", features = [] }
+
+[dependencies]
+tauri = { version = "2.0.0", features = ["shell-open", "fs-all", "path-all", "window-all", "dialog-all", "notification-all", "os-all", "clipboard-all", "process-all", "http-all"] }
+tauri-plugin-shell = "2.0.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]
+
+[profile.release]
+panic = "abort"
+codegen-units = 1
+lto = true
+opt-level = "z"
+strip = true
+
+[dependencies.winapi]
+version = "0.3"
+optional = true
+features = [
+    "winuser",
+    "shell32",
+    "shobjidl",
+    "uxtheme",
+    "dwmapi"
+]
+
+[target.'cfg(windows)'.dependencies]
+winapi = { version = "0.3", features = ["winuser", "shell32", "shobjidl", "uxtheme", "dwmapi"] }

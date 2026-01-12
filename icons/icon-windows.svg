@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="winBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0078D4"/>
+      <stop offset="100%" style="stop-color:#005A9E"/>
+    </linearGradient>
+    <filter id="winShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect x="64" y="64" width="384" height="384" rx="48" ry="48" fill="url(#winBg)" filter="url(#winShadow)"/>
+  
+  <!-- Inner border -->
+  <rect x="80" y="80" width="352" height="352" rx="40" ry="40" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.3"/>
+  
+  <!-- Neural network nodes -->
+  <circle cx="170" cy="170" r="24" fill="#FFFFFF"/>
+  <circle cx="256" cy="170" r="24" fill="#FFFFFF"/>
+  <circle cx="342" cy="170" r="24" fill="#FFFFFF"/>
+  
+  <circle cx="170" cy="256" r="24" fill="#FFFFFF"/>
+  <circle cx="256" cy="256" r="32" fill="#00F0FF"/>
+  <circle cx="342" cy="256" r="24" fill="#FFFFFF"/>
+  
+  <circle cx="170" cy="342" r="24" fill="#FFFFFF"/>
+  <circle cx="256" cy="342" r="24" fill="#FFFFFF"/>
+  <circle cx="342" cy="342" r="24" fill="#FFFFFF"/>
+  
+  <!-- Neural connections -->
+  <line x1="170" y1="170" x2="256" y2="170" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="256" y1="170" x2="342" y2="170" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="170" y1="170" x2="170" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="256" y1="170" x2="170" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="256" y1="170" x2="256" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+  <line x1="256" y1="170" x2="342" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="342" y1="170" x2="256" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="342" y1="170" x2="342" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="170" y1="256" x2="256" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+  <line x1="256" y1="256" x2="342" y2="256" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+  <line x1="170" y1="256" x2="170" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="256" y1="256" x2="170" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="256" y1="256" x2="256" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.8"/>
+  <line x1="256" y1="256" x2="342" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="342" y1="256" x2="256" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="342" y1="256" x2="342" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="170" y1="342" x2="256" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  <line x1="256" y1="342" x2="342" y2="342" stroke="#FFFFFF" stroke-width="3" opacity="0.6"/>
+  
+  <!-- Audio wave overlay -->
+  <path d="M120 420 Q160 400 200 420 T280 420 T360 420" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.5"/>
+  
+  <!-- Windows accent mark -->
+  <path d="M430 430 L450 450 L470 430" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

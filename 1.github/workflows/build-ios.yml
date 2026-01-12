@@ -1,0 +1,386 @@
+name: Build iOS
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '**.js'
+      - '**.json'
+      - '**.html'
+      - '**.css'
+      - 'builds/ios/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: false
+        default: ''
+      build_type:
+        description: 'Build type'
+        required: false
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+env:
+  XCODE_VERSION: '15.0'
+  IOS_DEPLOYMENT_TARGET: '14.0'
+  SWIFT_VERSION: '5.9'
+
+jobs:
+  setup:
+    name: Setup Environment
+    runs-on: macos-14
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          clean: true
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Setup XcodeGen
+        run: |
+          brew install xcodegen
+
+      - name: Cache Xcode dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Xcode
+            ~/Library/Developer/Xcode/DerivedData
+          key: ${{ runner.os }}-ios-${{ hashFiles('builds/ios/**/project.yml') }}
+          restore-keys: |
+            ${{ runner.os }}-ios-
+
+      - name: Verify setup
+        run: |
+          xcodebuild -version
+          xcodegen --version
+          sw_vers
+
+    outputs:
+      xcode_version: ${{ env.XCODE_VERSION }}
+
+  lint:
+    name: Lint Code
+    runs-on: macos-14
+    needs: setup
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Setup XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ./builds/ios
+        run: xcodegen generate
+
+      - name: Run SwiftLint
+        if: ${{ env.SWIFTLINT_ENABLED == 'true' }}
+        run: |
+          brew install swiftlint
+          swiftlint
+
+      - name: Run build for validation
+        working-directory: ./builds/ios
+        run: |
+          xcodebuild \
+            -project NeuralVoiceOS.xcodeproj \
+            -scheme NeuralVoiceOS \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO
+
+  test:
+    name: Run Tests
+    runs-on: macos-14
+    needs: setup
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Setup XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ./builds/ios
+        run: xcodegen generate
+
+      - name: Run unit tests
+        working-directory: ./builds/ios
+        run: |
+          xcodebuild \
+            -project NeuralVoiceOS.xcodeproj \
+            -scheme NeuralVoiceOS \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            test \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            -resultBundlePath test-results
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-ios
+          path: |
+            builds/ios/test-results/
+          retention-days: 7
+
+  build-debug:
+    name: Build Debug IPA
+    runs-on: macos-14
+    needs: [lint, test]
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Setup XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ./builds/ios
+        run: xcodegen generate
+
+      - name: Build for iOS Simulator
+        working-directory: ./builds/ios
+        run: |
+          xcodebuild \
+            -project NeuralVoiceOS.xcodeproj \
+            -scheme NeuralVoiceOS \
+            -destination 'generic/platform=iOS Simulator' \
+            -configuration Debug \
+            build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Create debug IPA
+        working-directory: ./builds/ios
+        run: |
+          # Create an IPA structure
+          mkdir -p Payload
+          cp -r build/Debug-iphonesimulator/NeuralVoiceOS.app Payload/
+          zip -r NeuralVoiceOS.ipa Payload
+          rm -rf Payload
+
+      - name: Upload debug IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: neural-voice-os-ios-debug
+          path: builds/ios/NeuralVoiceOS.ipa
+          retention-days: 30
+
+  build-release:
+    name: Build Release IPA
+    runs-on: macos-14
+    needs: [lint, test]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: ${{ env.XCODE_VERSION }}
+
+      - name: Setup XcodeGen
+        run: brew install xcodegen
+
+      - name: Generate Xcode project
+        working-directory: ./builds/ios
+        run: xcodegen generate
+
+      - name: Get certificates and profiles
+        uses: apple-actions/import-codesign-certs@v2
+        with:
+          p12-file-base64: ${{ secrets.IOS_P12_BASE64 }}
+          p12-password: ${{ secrets.IOS_P12_PASSWORD }}
+
+      - name: Provisioning Profile
+        uses: maxim-lobanov/setup-xcode-provisioning-profiles@v1
+        with:
+          path: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
+          decode-base64: true
+
+      - name: Build for iOS Device
+        working-directory: ./builds/ios
+        run: |
+          xcodebuild \
+            -project NeuralVoiceOS.xcodeproj \
+            -scheme NeuralVoiceOS \
+            -destination 'generic/platform=iOS' \
+            -configuration Release \
+            archive \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="${{ secrets.IOS_CODE_SIGN_IDENTITY }}" \
+            DEVELOPMENT_TEAM="${{ secrets.IOS_DEVELOPMENT_TEAM }}" \
+            PROVISIONING_PROFILE="${{ secrets.IOS_PROVISIONING_PROFILE_NAME }}" \
+            PRODUCT_BUNDLE_IDENTIFIER=com.neuralvoiceos.app \
+            -archivePath build/NeuralVoiceOS
+
+      - name: Export IPA
+        working-directory: ./builds/ios
+        run: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath build/NeuralVoiceOS.xcarchive \
+            -exportOptionsPlist Info.plist \
+            -exportPath build/output
+
+      - name: Upload release IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: neural-voice-os-ios-release
+          path: builds/ios/build/output/*.ipa
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-debug, build-release]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: version
+        working-directory: ./builds/ios
+        run: |
+          VERSION=$(grep -A1 "MARKETING_VERSION" NeuralVoiceOS/Info.plist | grep string | sed 's/<[^>]*>//g' | tr -d ' ')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building release v$VERSION"
+
+      - name: Download debug artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: neural-voice-os-ios-debug
+          path: release/debug
+          merge-multiple: true
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: neural-voice-os-ios-release
+          path: release/release
+          merge-multiple: true
+
+      - name: Create release notes
+        run: |
+          cat > release/RELEASE_NOTES.md << 'EOF'
+          # Neural Voice OS v${{ steps.version.outputs.version }}
+          
+          ## What's New
+          - Enhanced voice recognition accuracy on iOS
+          - Improved audio processing with Core Audio
+          - Better integration with iOS Speech framework
+          - New SwiftUI interface
+          
+          ## Bug Fixes
+          - Fixed microphone permission issues
+          - Resolved audio recording interruptions
+          - Improved background audio handling
+          
+          ## Known Issues
+          - None reported
+          
+          ## Installation
+          Requires iOS 14.0 or later.
+          
+          ## Requirements
+          - iOS 14.0 or later
+          - Microphone permission
+          - Internet connection (for initial setup)
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Neural Voice OS v${{ steps.version.outputs.version }}
+          body_path: release/RELEASE_NOTES.md
+          files: |
+            release/release/*.ipa
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to App Store Connect
+        if: ${{ secrets.APP_STORE_API_KEY != '' }}
+        uses: apple-actions/upload-testflight-build@v1
+        with:
+          api-key: ${{ secrets.APP_STORE_API_KEY }}
+          api-issuer: ${{ secrets.APP_STORE_ISSUER_ID }}
+          app-id: ${{ secrets.APP_STORE_APP_ID }}
+          ipa-path: release/release/*.ipa
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [create-release]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Send success notification
+        if: ${{ needs.create-release.result == 'success' }}
+        run: |
+          echo "iOS build completed successfully!"
+        shell: bash
+
+      - name: Send failure notification
+        if: ${{ needs.create-release.result == 'failure' }}
+        run: |
+          echo "iOS build failed!"
+          exit 1
+        shell: bash

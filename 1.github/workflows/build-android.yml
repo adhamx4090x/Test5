@@ -1,0 +1,406 @@
+name: Build Android
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '**.js'
+      - '**.json'
+      - '**.html'
+      - '**.css'
+      - 'builds/android/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: false
+        default: ''
+      build_type:
+        description: 'Build type'
+        required: false
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+env:
+  JAVA_VERSION: '17'
+  GRADLE_VERSION: '8.4'
+  ANDROID_COMPILE_SDK: '34'
+  ANDROID_MIN_SDK: '24'
+  ANDROID_TARGET_SDK: '34'
+
+jobs:
+  setup:
+    name: Setup Environment
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          clean: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+        with:
+          gradle-version: ${{ env.GRADLE_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-levels: ${{ env.ANDROID_COMPILE_SDK }}
+          build-tools: '34.0.0'
+
+      - name: Cache Android dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+            ./builds/android/.gradle
+          key: ${{ runner.os }}-android-${{ hashFiles('builds/android/**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-android-
+
+      - name: Verify setup
+        run: |
+          java -version
+          gradle -v
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls -la $ANDROID_HOME
+
+    outputs:
+      java_version: ${{ env.JAVA_VERSION }}
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-levels: ${{ env.ANDROID_COMPILE_SDK }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-android-lint-${{ hashFiles('builds/android/**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-android-lint-
+
+      - name: Run Android lint
+        working-directory: ./builds/android
+        run: |
+          ./gradlew lint
+        continue-on-error: true
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lint-results-android
+          path: |
+            builds/android/app/build/reports/lint-results*.html
+            builds/android/app/build/reports/lint-results*.xml
+          retention-days: 7
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: setup
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-levels: ${{ env.ANDROID_COMPILE_SDK }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-android-test-${{ hashFiles('builds/android/**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-android-test-
+
+      - name: Run unit tests
+        working-directory: ./builds/android
+        run: |
+          ./gradlew test
+
+      - name: Run instrumented tests
+        working-directory: ./builds/android
+        run: |
+          ./gradlew connectedAndroidTest
+        continue-on-error: true
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-android
+          path: |
+            builds/android/app/build/reports/tests/**
+            builds/android/app/build/test-results/**
+          retention-days: 7
+
+  build-debug:
+    name: Build Debug APK
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-levels: ${{ env.ANDROID_COMPILE_SDK }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-android-debug-${{ hashFiles('builds/android/**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-android-debug-
+
+      - name: Build debug APK
+        working-directory: ./builds/android
+        run: |
+          ./gradlew assembleDebug
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: neural-voice-os-debug
+          path: |
+            builds/android/app/build/outputs/apk/debug/*.apk
+          retention-days: 30
+
+  build-release:
+    name: Build Release APK/AAB
+    runs-on: ubuntu-latest
+    needs: [lint, test]
+    timeout-minutes: 25
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-levels: ${{ env.ANDROID_COMPILE_SDK }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-android-release-${{ hashFiles('builds/android/**/build.gradle*') }}
+          restore-keys: |
+            ${{ runner.os }}-android-release-
+
+      - name: Build release APK
+        working-directory: ./builds/android
+        run: |
+          ./gradlew assembleRelease
+
+      - name: Build App Bundle
+        working-directory: ./builds/android
+        run: |
+          ./gradlew bundleRelease
+
+      - name: Sign release APK
+        if: ${{ secrets.ANDROID_SIGNING_KEY != '' }}
+        working-directory: ./builds/android
+        run: |
+          # Create signing config
+          cat > app/signing.properties << EOF
+          storeFile=${{ secrets.ANDROID_SIGNING_KEYSTORE_FILE }}
+          storePassword=${{ secrets.ANDROID_STORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+          
+          # Sign the APK
+          ./gradlew signRelease
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: neural-voice-os-release
+          path: |
+            builds/android/app/build/outputs/apk/release/*.apk
+            builds/android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-debug, build-release]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: version
+        working-directory: ./builds/android
+        run: |
+          VERSION=$(grep -o 'versionName = "[^"]*"' app/build.gradle.kts | cut -d'"' -f2)
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building release v$VERSION"
+
+      - name: Download debug artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: neural-voice-os-debug
+          path: release/debug
+          merge-multiple: true
+
+      - name: Download release artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: neural-voice-os-release
+          path: release/release
+          merge-multiple: true
+
+      - name: Create release notes
+        run: |
+          cat > release/RELEASE_NOTES.md << 'EOF'
+          # Neural Voice OS v${{ steps.version.outputs.version }}
+          
+          ## What's New
+          - Enhanced voice recognition accuracy on Android
+          - Improved audio processing pipeline
+          - Better battery efficiency
+          - New Material Design 3 UI components
+          
+          ## Bug Fixes
+          - Fixed audio recording issues on some devices
+          - Resolved microphone permission problems
+          - Improved stability on low-end devices
+          
+          ## Known Issues
+          - None reported
+          
+          ## Installation
+          Download the APK file and install it on your Android device (version 7.0+).
+          
+          ## Requirements
+          - Android 7.0 (API 24) or higher
+          - Microphone permission
+          - Storage permission (for saving transcripts)
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Neural Voice OS v${{ steps.version.outputs.version }}
+          body_path: release/RELEASE_NOTES.md
+          files: |
+            release/release/*.apk
+            release/release/*.aab
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload to Google Play (Internal)
+        if: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT != '' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          service-account-json: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          package-name: com.neuralvoiceos.app
+          release-files: release/release/*.aab
+          track: internal
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [create-release]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Send success notification
+        if: ${{ needs.create-release.result == 'success' }}
+        run: |
+          echo "Android build completed successfully!"
+        shell: bash
+
+      - name: Send failure notification
+        if: ${{ needs.create-release.result == 'failure' }}
+        run: |
+          echo "Android build failed!"
+          exit 1
+        shell: bash

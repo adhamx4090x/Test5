@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- App name -->
+  <string name="app_name">NeuralVoice OS</string>
+  <string name="app_description">Local AI Voice Operating System</string>
+  
+  <!-- Main interface -->
+  <string name="tab_home">Home</string>
+  <string name="tab_layers">Layers</string>
+  <string name="tab_effects">Effects</string>
+  <string name="tab_settings">Settings</string>
+  
+  <!-- Controls -->
+  <string name="btn_record">Record</string>
+  <string name="btn_stop">Stop</string>
+  <string name="btn_play">Play</string>
+  <string name="btn_pause">Pause</string>
+  <string name="btn_export">Export</string>
+  
+  <!-- Voice layers -->
+  <string name="layer_main">Main Voice</string>
+  <string name="layer_add">Add Layer</string>
+  <string name="layer_mute">Mute</string>
+  <string name="layer_solo">Solo</string>
+  <string name="layer_arm">Record Arm</string>
+  
+  <!-- Effects -->
+  <string name="effect_pitch">Pitch Shift</string>
+  <string name="effect_formant">Formant</string>
+  <string name="effect_reverb">Reverb</string>
+  <string name="effect_compression">Compression</string>
+  <string name="effect_eq">Equalizer</string>
+  <string name="effect_deess">De-Esser</string>
+  
+  <!-- Settings -->
+  <string name="settings_audio">Audio Settings</string>
+  <string name="settings_input">Input Device</string>
+  <string name="settings_output">Output Device</string>
+  <string name="settings_sample_rate">Sample Rate</string>
+  <string name="settings_buffer_size">Buffer Size</string>
+  <string name="settings_theme">Theme</string>
+  <string name="settings_about">About</string>
+  
+  <!-- Messages -->
+  <string name="msg_recording">Recording in progress…</string>
+  <string name="msg_processing">Processing audio…</string>
+  <string name="msg_exporting">Exporting project…</string>
+  <string name="msg_saved">Project saved successfully</string>
+  <string name="msg_permission_microphone">Microphone permission is required to record audio</string>
+  
+  <!-- Permissions -->
+  <string name="permission_microphone_title">Microphone Access</string>
+  <string name="permission_microphone_message">NeuralVoice OS needs access to your microphone to record and process voice audio. This data stays completely on your device.</string>
+  <string name="permission_grant">Grant Access</string>
+  <string name="permission_deny">Deny</string>
+  
+  <!-- AI Brain -->
+  <string name="ai_brain_title">AI Brain</string>
+  <string name="ai_brain_active">AI Brain Active</string>
+  <string name="ai_brain_learning">Learning your voice…</string>
+  <string name="ai_brain_optimized">Optimization Complete</string>
+  
+  <!-- Errors -->
+  <string name="error_microphone">Failed to access microphone</string>
+  <string name="error_recording">Recording failed</string>
+  <string name="error_export">Export failed</string>
+  <string name="error_unknown">An unknown error occurred</string>
+</resources>

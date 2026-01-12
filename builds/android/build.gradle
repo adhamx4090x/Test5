@@ -1,0 +1,24 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+plugins {
+  id 'com.android.application' version '8.2.0' apply false
+  id 'org.jetbrains.kotlin.android' version '1.9.20' apply false
+}
+
+ext {
+  compileSdkVersion = 34
+  minSdkVersion = 24
+  targetSdkVersion = 34
+  
+  // Versions
+  kotlinVersion = '1.9.20'
+  coroutinesVersion = '1.7.3'
+  
+  // App configuration
+  applicationId = 'com.minimax.localaivoiceos'
+  versionCode = 1
+  versionName = '1.0.0'
+}
+
+task clean(type: Delete) {
+  delete rootProject.buildDir
+}

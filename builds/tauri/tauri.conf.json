@@ -1,0 +1,153 @@
+{
+  "$schema": "https://schema.tauri.app/config/2.0.0",
+  "productName": "NeuralVoiceOS",
+  "version": "1.0.0",
+  "identifier": "com.minimax.local-ai-voice-os",
+  "build": {
+    "beforeDevCommand": "npm run start",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:3000",
+    "frontendDist": "../"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "title": "NeuralVoice OS",
+        "width": 1400,
+        "height": 900,
+        "minWidth": 1200,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "alwaysOnTop": false,
+        "visible": true,
+        "icon": "icons/icon.ico"
+      }
+    ],
+    "security": {
+      "csp": null
+    },
+    "macOS": {
+      "entitlements": null,
+      "entitlementsInherit": null,
+      "providerShortName": null,
+      "hardenedRuntime": true,
+      "entitlementsRaw": "",
+      "signatureFlags": "library"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.ico"
+    ],
+    "publisher": "MiniMax Agent",
+    "description": "Local AI Voice Operating System - A 100% offline, local-first professional voice operating system",
+    "shortDescription": "NeuralVoice OS",
+    "longDescription": "NeuralVoice OS is a professional voice operating system that runs completely offline. It features neural audio processing, local AI brain, voice layers, ultra-precision controls, and real-time visualization.",
+    "deb": {
+      "depends": ["libwebkit2gtk-4.0-37", "libgtk-3-0", "libnotify4", "libnss3", "libxss1", "libxtst6", "libasound2"]
+    },
+    "rpm": {
+      "depends": ["webkit2gtk3.0", "gtk3", "libnotify", "nss", "libXss", "libXtst", "alsa-lib"]
+    },
+    "macOS": {
+      "frameworks": [],
+      "minimumSystemVersion": "11.0",
+      "license": "../LICENSE",
+      "signingIdentity": null,
+      "providerShortName": null,
+      "entitlements": null,
+      "entitlementsInherit": null,
+      "signatureFlags": []
+    },
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": "",
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      }
+    }
+  },
+  "allowlist": {
+    "all": true,
+    "shell": {
+      "all": true,
+      "open": true
+    },
+    "fs": {
+      "all": true,
+      "readFile": true,
+      "writeFile": true,
+      "readDir": true,
+      "removeFile": true,
+      "renameFile": true,
+      "exists": true,
+      "createDir": true,
+      "removeDir": true
+    },
+    "path": {
+      "all": true
+    },
+    "window": {
+      "all": true,
+      "create": true,
+      "close": true,
+      "setFocus": true,
+      "setAlwaysOnTop": true,
+      "setTitle": true,
+      "maximize": true,
+      "unmaximize": true,
+      "minimize": true,
+      "show": true,
+      "hide": true,
+      "setIcon": true,
+      "setSkipTaskbar": true,
+      "setDecorations": true,
+      "setContentProtected": true,
+      "setResizable": true,
+      "setFullscreen": true,
+      "clearAllTasks": true,
+      "setParentWindow": true
+    },
+    "shell": {
+      "all": true,
+      "execute": true,
+      "spawn": true,
+      "open": true
+    },
+    "notification": {
+      "all": true
+    },
+    "os": {
+      "all": true
+    },
+    "dialog": {
+      "all": true,
+      "open": true,
+      "save": true,
+      "message": true,
+      "ask": true,
+      "confirm": true
+    },
+    "clipboard": {
+      "all": true
+    },
+    "process": {
+      "all": true
+    },
+    "http": {
+      "all": true,
+      "fetch": true,
+      "request": true
+    }
+  }
+}

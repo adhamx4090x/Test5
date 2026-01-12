@@ -1,0 +1,124 @@
+{
+  "name": "local-ai-voice-os",
+  "version": "1.0.0",
+  "description": "Local AI Voice Operating System - A 100% offline, local-first professional voice operating system with neural audio processing and local AI brain",
+  "author": {
+    "name": "MiniMax Agent",
+    "email": "developer@minimax.ai"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/minimax/local-ai-voice-os"
+  },
+  "keywords": [
+    "voice",
+    "audio",
+    "neural",
+    "ai",
+    "offline",
+    "local-first",
+    "tts",
+    "voice-processing",
+    "audio-workstation"
+  ],
+  "main": "builds/electron/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "node scripts/build.js",
+    "build:electron": "node scripts/build.js --platform=electron",
+    "build:tauri": "node scripts/build.js --platform=tauri",
+    "build:android": "node scripts/build.js --platform=android",
+    "build:ios": "node scripts/build.js --platform=ios",
+    "build:all": "node scripts/build.js --platform=all",
+    "build:windows": "node scripts/build.js --platform=electron --target=windows",
+    "build:macos": "node scripts/build.js --platform=electron --target=macos",
+    "build:linux": "node scripts/build.js --platform=electron --target=linux",
+    "test": "node test.js",
+    "lint": "eslint . --ext .js,.html,.css",
+    "icon:generate": "node scripts/generate-icons.js",
+    "icon:convert": "node scripts/convert-icons.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "eslint": "^8.56.0",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.33.2"
+  },
+  "build": {
+    "appId": "com.minimax.local-ai-voice-os",
+    "productName": "NeuralVoice OS",
+    "copyright": "Copyright © 2024 MiniMax Agent",
+    "directories": {
+      "output": "dist",
+      "buildResources": "builds/electron/resources"
+    },
+    "files": [
+      "**/*",
+      "!**/node_modules/**/*",
+      "!**/test/**/*",
+      "!**/dist/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icons/icon-windows.ico",
+      "artifactName": "NeuralVoiceOS-Setup-${version}.exe"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icons/icon-macos.icns",
+      "artifactName": "NeuralVoiceOS-${version}.dmg"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icons/icon-linux.png",
+      "artifactName": "NeuralVoiceOS-${version}.AppImage"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "tauri": {
+    "allowlist": {
+      "all": true,
+      "shell": {
+        "all": true
+      },
+      "fs": {
+        "all": true
+      },
+      "window": {
+        "all": true
+      }
+    },
+    "bundle": {
+      "active": true,
+      "targets": "all",
+      "identifier": "com.minimax.local-ai-voice-os",
+      "icon": [
+        "icons/32x32.png",
+        "icons/128x128.png",
+        "icons/128x128@2x.png",
+        "icons/icon.ico"
+      ]
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "embedBootstrapper"
+      }
+    }
+  }
+}

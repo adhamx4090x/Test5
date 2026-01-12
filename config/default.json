@@ -1,0 +1,94 @@
+{
+  "app": {
+    "name": "Neural Voice OS",
+    "version": "1.0.0",
+    "description": "Local AI Voice Operating System",
+    "author": "MiniMax Agent",
+    "license": "MIT"
+  },
+  "voice": {
+    "recognition": {
+      "enabled": true,
+      "language": "en-US",
+      "continuous": false,
+      "interimResults": true,
+      "maxAlternatives": 3,
+      "profanityFilter": false,
+      "audioInput": {
+        "sampleRate": 16000,
+        "channelCount": 1,
+        "echoCancellation": true,
+        "noiseSuppression": true,
+        "autoGainControl": true
+      }
+    },
+    "activation": {
+      "wakeWord": "hey neural",
+      "wakeWordSensitivity": 0.8,
+      "voiceActivityDetection": true,
+      "silenceThreshold": 500,
+      "silenceTimeout": 1500
+    }
+  },
+  "audio": {
+    "input": {
+      "sampleRate": 16000,
+      "channelCount": 1,
+      "bufferSize": 4096
+    },
+    "output": {
+      "sampleRate": 44100,
+      "channelCount": 2,
+      "volume": 0.8
+    },
+    "processing": {
+      "noiseReduction": true,
+      "noiseReductionLevel": 0.7,
+      "echoCancellation": true,
+      "autoGain": true,
+      "normalization": true,
+      "normalizationTarget": -16
+    }
+  },
+  "ui": {
+    "theme": "dark",
+    "animations": true,
+    "compactMode": false,
+    "language": "en-US",
+    "notifications": {
+      "enabled": true,
+      "sound": true,
+      "toast": true
+    }
+  },
+  "keyboard": {
+    "shortcuts": {
+      "toggleRecording": "Ctrl+Space",
+      "clearTranscript": "Ctrl+Backspace",
+      "copyTranscript": "Ctrl+C",
+      "undoLast": "Ctrl+Z",
+      "redoLast": "Ctrl+Y",
+      "exportTranscript": "Ctrl+E"
+    }
+  },
+  "storage": {
+    "transcriptLimit": 1000,
+    "autoSave": true,
+    "autoSaveInterval": 30000,
+    "maxFileSize": 52428800,
+    "compression": true
+  },
+  "performance": {
+    "maxWorkers": 4,
+    "gpuAcceleration": true,
+    "modelCacheSize": 536870912,
+    "streamingBufferSize": 1024
+  },
+  "logging": {
+    "level": "info",
+    "console": true,
+    "file": false,
+    "maxFileSize": 10485760,
+    "maxFiles": 5
+  }
+}

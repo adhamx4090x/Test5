@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Local AI Voice Operating System - Professional Offline Voice Production">
+    <meta name="theme-color" content="#0a0b10">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Local AI Voice OS | Neural Audio Workstation</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="os-container" data-creativity="off" data-project="general">
+        <!-- Cortex Bar (Top Navigation) -->
+        <header class="cortex-bar">
+            <div class="cortex-left">
+                <div class="brand">
+                    <svg class="brand-icon" viewBox="0 0 48 48" fill="none">
+                        <defs>
+                            <linearGradient id="neuroGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:#00f0ff"/>
+                                <stop offset="100%" style="stop-color:#ff0055"/>
+                            </linearGradient>
+                            <filter id="neuroGlow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <circle cx="24" cy="24" r="20" stroke="url(#neuroGrad)" stroke-width="2" fill="none"/>
+                        <path d="M24 8 L24 16 M24 32 L24 40 M8 24 L16 24 M32 24 L40 24" stroke="url(#neuroGrad)" stroke-width="2"/>
+                        <circle cx="24" cy="24" r="8" fill="url(#neuroGrad)" filter="url(#neuroGlow)"/>
+                        <circle cx="24" cy="24" r="14" stroke="url(#neuroGrad)" stroke-width="1" fill="none" stroke-dasharray="4 4"/>
+                    </svg>
+                    <div class="brand-text">
+                        <h1>NeuralVoice</h1>
+                        <span class="version-badge">AI OS v1.0</span>
+                    </div>
+                </div>
+                
+                <div class="project-selector">
+                    <button class="project-btn" id="projectTypeBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                        <span id="currentProjectType">General</span>
+                        <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="6 9 12 15 18 9"/>
+                        </svg>
+                    </button>
+                    <div class="project-dropdown" id="projectDropdown">
+                        <button class="project-option" data-type="podcast">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            </svg>
+                            Podcast
+                        </button>
+                        <button class="project-option" data-type="music">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 18V5l12-2v13"/>
+                                <circle cx="6" cy="18" r="3"/>
+                                <circle cx="18" cy="16" r="3"/>
+                            </svg>
+                            Music
+                        </button>
+                        <button class="project-option" data-type="voiceover">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                <line x1="12" y1="19" x2="12" y2="23"/>
+                            </svg>
+                            Voice-over
+                        </button>
+                        <button class="project-option" data-type="gaming">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+                                <polyline points="2 17 12 22 22 17"/>
+                                <polyline points="2 12 12 17 22 12"/>
+                            </svg>
+                            Gaming
+                        </button>
+                        <button class="project-option" data-type="general">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="3" width="20" height="14" rx="2"/>
+                                <line x1="8" y1="21" x2="16" y2="21"/>
+                                <line x1="12" y1="17" x2="12" y2="21"/>
+                            </svg>
+                            General
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="cortex-center">
+                <div class="ai-cortex" id="aiCortex">
+                    <div class="brain-visual" id="brainVisual">
+                        <svg viewBox="0 0 60 60" class="brain-svg">
+                            <circle class="brain-core" cx="30" cy="30" r="15"/>
+                            <circle class="brain-ring" cx="30" cy="30" r="25"/>
+                            <g class="brain-nodes">
+                                <circle cx="30" cy="5" r="3"/>
+                                <circle cx="30" cy="55" r="3"/>
+                                <circle cx="5" cy="30" r="3"/>
+                                <circle cx="55" cy="30" r="3"/>
+                                <circle cx="12" cy="12" r="2"/>
+                                <circle cx="48" cy="12" r="2"/>
+                                <circle cx="12" cy="48" r="2"/>
+                                <circle cx="48" cy="48" r="2"/>
+                            </g>
+                        </svg>
+                        <div class="brain-pulse"></div>
+                    </div>
+                    <div class="cortex-status">
+                        <span class="cortex-label">AI CORTEX</span>
+                        <span class="cortex-state" id="aiState">Idle</span>
+                    </div>
+                    <div class="cortex-metrics">
+                        <div class="metric">
+                            <span class="metric-label">Learning</span>
+                            <span class="metric-value" id="learningMetric">0%</span>
+                        </div>
+                        <div class="metric">
+                            <span class="metric-label">Context</span>
+                            <span class="metric-value" id="contextMetric">--</span>
+                        </div>
+                    </div>
+                    <button class="creativity-toggle" id="creativityToggle" title="Toggle Creativity Mode">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        </svg>
+                        <span>Creativity</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="cortex-right">
+                <div class="system-monitor">
+                    <div class="monitor-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 20V10M12 20V4M6 20v-6"/>
+                        </svg>
+                        <span id="cpuUsage">12%</span>
+                    </div>
+                    <div class="monitor-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2"/>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+                        </svg>
+                        <span id="ramUsage">1.2 GB</span>
+                    </div>
+                    <div class="monitor-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                        <span id="modelStatus">Loaded</span>
+                    </div>
+                </div>
+                
+                <button class="icon-btn" id="settingsBtn" title="Settings">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4"/>
+                    </svg>
+                </button>
+                
+                <div class="offline-badge" id="offlineBadge">
+                    <span class="status-dot"></span>
+                    <span>Offline Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace">
+            <!-- Left Panel: Neural Canvas / AI Suggestions -->
+            <aside class="panel neural-panel">
+                <div class="panel-header">
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"/>
+                            <path d="M12 6v6l4 2"/>
+                        </svg>
+                        Neural Cortex
+                    </h2>
+                </div>
+                
+                <div class="ai-suggestions-section">
+                    <h3>AI Suggestions</h3>
+                    <div class="suggestions-list" id="aiSuggestions">
+                        <div class="suggestion-card">
+                            <div class="suggestion-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                            </div>
+                            <div class="suggestion-content">
+                                <p>Enable AI to get intelligent suggestions based on your workflow</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="learning-insights">
+                    <h3>Learning Insights</h3>
+                    <div class="insights-list" id="learningInsights">
+                        <div class="insight-item">
+                            <span class="insight-icon">🧠</span>
+                            <span class="insight-text">Analyzing your editing patterns...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="creativity-panel" id="creativityPanel">
+                    <h3>Creativity Engine</h3>
+                    <div class="creativity-ideas" id="creativityIdeas">
+                        <div class="idea-card">
+                            <span class="idea-icon">💡</span>
+                            <p>Generate a voice profile based on your recent edits</p>
+                            <button class="idea-action">Generate</button>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Center: Timeline & Editor -->
+            <section class="editor-section">
+                <!-- Transport Bar -->
+                <div class="transport-bar">
+                    <div class="transport-left">
+                        <div class="time-display">
+                            <span id="currentTime">00:00:00.000</span>
+                            <span class="time-separator">/</span>
+                            <span id="totalTime">00:00:00.000</span>
+                        </div>
+                        <div class="playback-mode" id="playbackMode">READY</div>
+                    </div>
+                    
+                    <div class="transport-controls">
+                        <button class="transport-btn" id="skipBackBtn" title="Skip Back">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="19 20 9 12 19 4 19 20"/>
+                                <line x1="5" y1="19" x2="5" y2="5"/>
+                            </svg>
+                        </button>
+                        <button class="transport-btn" id="rewindBtn" title="Rewind">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="11 19 2 12 11 5 11 19"/>
+                                <polygon points="22 19 13 12 22 5 22 19"/>
+                            </svg>
+                        </button>
+                        <button class="transport-btn play-btn" id="playPauseBtn" title="Play/Pause">
+                            <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3"/>
+                            </svg>
+                            <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="4" width="4" height="16"/>
+                                <rect x="14" y="4" width="4" height="16"/>
+                            </svg>
+                        </button>
+                        <button class="transport-btn stop-btn" id="stopBtn" title="Stop">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <rect x="6" y="6" width="12" height="12"/>
+                            </svg>
+                        </button>
+                        <button class="transport-btn record-btn" id="recordBtn" title="Record">
+                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                <circle cx="12" cy="12" r="8"/>
+                            </svg>
+                        </button>
+                        <button class="transport-btn" id="skipForwardBtn" title="Skip Forward">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 4 15 12 5 20 5 4"/>
+                                <line x1="19" y1="5" x2="19" y2="19"/>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="transport-right">
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </button>
+                            <span class="zoom-level" id="zoomLevel">100%</span>
+                            <button class="zoom-btn" id="zoomInBtn" title="Zoom In">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="11" cy="11" r="8"/>
+                                    <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                                    <line x1="11" y1="8" x2="11" y2="14"/>
+                                    <line x1="8" y1="11" x2="14" y2="11"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <button class="transport-btn" id="loopBtn" title="Loop">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="17 1 21 5 17 9"/>
+                                <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                                <polyline points="7 23 3 19 7 15"/>
+                                <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Multi-Layer Timeline -->
+                <div class="timeline-container">
+                    <div class="timeline-ruler" id="timelineRuler">
+                        <div class="ruler-marks" id="rulerMarks"></div>
+                        <div class="playhead" id="playhead">
+                            <div class="playhead-head"></div>
+                            <div class="playhead-line"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="layers-container" id="layersContainer">
+                        <div class="layer track-layer" data-layer="0">
+                            <div class="layer-header">
+                                <div class="layer-controls">
+                                    <button class="layer-btn" title="Solo">S</button>
+                                    <button class="layer-btn" title="Mute">M</button>
+                                    <button class="layer-btn" title="Record">R</button>
+                                </div>
+                                <span class="layer-name">Voice Layer 1</span>
+                                <select class="blend-mode-select">
+                                    <option value="normal">Normal</option>
+                                    <option value="add">Add</option>
+                                    <option value="multiply">Multiply</option>
+                                    <option value="exciter">Exciter</option>
+                                </select>
+                            </div>
+                            <div class="layer-content" id="layer0">
+                                <div class="audio-clip voice-clip" data-id="clip1" data-type="voice">
+                                    <div class="clip-header">
+                                        <span class="clip-name">Recording 1</span>
+                                        <div class="clip-actions">
+                                            <button class="clip-action" data-action="split">✂</button>
+                                            <button class="clip-action" data-action="delete">×</button>
+                                        </div>
+                                    </div>
+                                    <div class="clip-waveform">
+                                        <canvas class="waveform-canvas" id="waveform1"></canvas>
+                                    </div>
+                                    <div class="clip-text" id="clip1Text">Hello, welcome to the Neural Voice Operating System.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="layer track-layer" data-layer="1">
+                            <div class="layer-header">
+                                <div class="layer-controls">
+                                    <button class="layer-btn" title="Solo">S</button>
+                                    <button class="layer-btn" title="Mute">M</button>
+                                    <button class="layer-btn" title="Record">R</button>
+                                </div>
+                                <span class="layer-name">Voice Layer 2</span>
+                                <select class="blend-mode-select">
+                                    <option value="normal">Normal</option>
+                                    <option value="add">Add</option>
+                                    <option value="multiply">Multiply</option>
+                                    <option value="exciter">Exciter</option>
+                                </select>
+                            </div>
+                            <div class="layer-content" id="layer1">
+                                <div class="audio-clip text-clip" data-id="clip2" data-type="text">
+                                    <div class="clip-header">
+                                        <span class="clip-name">TTS Layer</span>
+                                        <div class="clip-actions">
+                                            <button class="clip-action" data-action="split">✂</button>
+                                            <button class="clip-action" data-action="delete">×</button>
+                                        </div>
+                                    </div>
+                                    <div class="clip-waveform">
+                                        <canvas class="waveform-canvas" id="waveform2"></canvas>
+                                    </div>
+                                    <div class="clip-text" id="clip2Text">This is AI-generated speech with precise emotional control.</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="layer track-layer" data-layer="2">
+                            <div class="layer-header">
+                                <div class="layer-controls">
+                                    <button class="layer-btn" title="Solo">S</button>
+                                    <button class="layer-btn" title="Mute">M</button>
+                                    <button class="layer-btn" title="Record">R</button>
+                                </div>
+                                <span class="layer-name">Harmonics</span>
+                                <select class="blend-mode-select">
+                                    <option value="normal">Normal</option>
+                                    <option value="add">Add</option>
+                                    <option value="multiply">Multiply</option>
+                                    <option value="exciter">Exciter</option>
+                                </select>
+                            </div>
+                            <div class="layer-content" id="layer2">
+                                <div class="audio-clip effect-clip" data-id="clip3" data-type="effect">
+                                    <div class="clip-header">
+                                        <span class="clip-name">Breath Texture</span>
+                                        <div class="clip-actions">
+                                            <button class="clip-action" data-action="split">✂</button>
+                                            <button class="clip-action" data-action="delete">×</button>
+                                        </div>
+                                    </div>
+                                    <div class="clip-waveform">
+                                        <canvas class="waveform-canvas" id="waveform3"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button class="add-layer-btn" id="addLayerBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Layer
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Text Editor Panel -->
+                <div class="text-editor-section">
+                    <div class="text-editor-header">
+                        <h3>Text ↔ Voice Editor</h3>
+                        <div class="text-actions">
+                            <button class="text-btn" id="ttsGenerateBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                                </svg>
+                                Generate Voice
+                            </button>
+                            <button class="text-btn" id="transcribeBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                                </svg>
+                                Transcribe Audio
+                            </button>
+                        </div>
+                    </div>
+                    <div class="text-editor-content">
+                        <div class="word-timeline" id="wordTimeline">
+                            <span class="word" data-word="0" data-start="0" data-end="0.8">Hello</span>
+                            <span class="word" data-word="1" data-start="0.8" data-end="1.2">,</span>
+                            <span class="word" data-word="2" data-start="1.2" data-end="1.8">welcome</span>
+                            <span class="word" data-word="3" data-start="1.8" data-end="2.1">to</span>
+                            <span class="word" data-word="4" data-start="2.1" data-end="2.6">the</span>
+                            <span class="word" data-word="5" data-start="2.6" data-end="3.2">Neural</span>
+                            <span class="word" data-word="6" data-start="3.2" data-end="3.8">Voice</span>
+                            <span class="word" data-word="7" data-start="3.8" data-end="4.5">Operating</span>
+                            <span class="word" data-word="8" data-start="4.5" data-end="5.2">System</span>
+                            <span class="word" data-word="9" data-start="5.2" data-end="5.4">.</span>
+                        </div>
+                        <textarea id="textInput" placeholder="Enter text or edit the transcription...">Hello, welcome to the Neural Voice Operating System.</textarea>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Panel: Ultra-Precision Controls -->
+            <aside class="panel controls-panel">
+                <!-- Control Mode Selector -->
+                <div class="control-mode-section">
+                    <h3>Precision Control</h3>
+                    <div class="control-modes">
+                        <button class="mode-btn active" data-mode="macro">Macro</button>
+                        <button class="mode-btn" data-mode="micro">Micro</button>
+                        <button class="mode-btn" data-mode="nano">Nano</button>
+                    </div>
+                </div>
+
+                <!-- Pitch Control -->
+                <div class="control-group pitch-control">
+                    <div class="control-header">
+                        <h4>Pitch</h4>
+                        <span class="control-value" id="pitchValue">0.00</span>
+                    </div>
+                    <div class="precision-slider" id="pitchSlider" data-param="pitch" data-min="-24" data-max="24" data-value="0">
+                        <div class="slider-track">
+                            <div class="slider-fill"></div>
+                            <div class="slider-handle"></div>
+                        </div>
+                        <div class="slider-scale">
+                            <span>-24</span>
+                            <span>0</span>
+                            <span>+24</span>
+                        </div>
+                    </div>
+                    <div class="precision-inputs">
+                        <input type="number" id="pitchSemitones" value="0" step="1" placeholder="St">
+                        <input type="number" id="pitchCents" value="0" step="1" placeholder="Ct">
+                        <input type="number" id="pitchHz" value="0.00" step="0.01" placeholder="Hz">
+                    </div>
+                    <div class="automation-toggle">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="pitchAutomation">
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span>Automation</span>
+                    </div>
+                </div>
+
+                <!-- Formant Control -->
+                <div class="control-group formant-control">
+                    <div class="control-header">
+                        <h4>Formant</h4>
+                        <span class="control-value" id="formantValue">0.00</span>
+                    </div>
+                    <div class="precision-slider" id="formantSlider" data-param="formant" data-min="-12" data-max="12" data-value="0">
+                        <div class="slider-track">
+                            <div class="slider-fill"></div>
+                            <div class="slider-handle"></div>
+                        </div>
+                        <div class="slider-scale">
+                            <span>-12</span>
+                            <span>0</span>
+                            <span>+12</span>
+                        </div>
+                    </div>
+                    <div class="formant-presets">
+                        <button class="preset-btn" data-preset="natural">Natural</button>
+                        <button class="preset-btn" data-preset="bright">Bright</button>
+                        <button class="preset-btn" data-preset="warm">Warm</button>
+                        <button class="preset-btn" data-preset="dark">Dark</button>
+                    </div>
+                </div>
+
+                <!-- Emotion Control -->
+                <div class="control-group emotion-control">
+                    <div class="control-header">
+                        <h4>Emotion</h4>
+                        <span class="control-value" id="emotionValue">Neutral</span>
+                    </div>
+                    <div class="emotion-wheel" id="emotionWheel">
+                        <svg viewBox="0 0 100 100">
+                            <circle cx="50" cy="50" r="45" class="emotion-ring"/>
+                            <circle cx="50" cy="5" r="8" class="emotion-point" data-emotion="happy"/>
+                            <circle cx="85" cy="30" r="8" class="emotion-point" data-emotion="excited"/>
+                            <circle cx="85" cy="70" r="8" class="emotion-point" data-emotion="angry"/>
+                            <circle cx="50" cy="95" r="8" class="emotion-point" data-emotion="sad"/>
+                            <circle cx="15" cy="70" r="8" class="emotion-point" data-emotion="calm"/>
+                            <circle cx="15" cy="30" r="8" class="emotion-point" data-emotion="neutral"/>
+                            <circle cx="50" cy="50" r="12" class="emotion-center"/>
+                        </svg>
+                    </div>
+                    <div class="emotion-presets">
+                        <button class="emotion-btn active" data-emotion="neutral">Neutral</button>
+                        <button class="emotion-btn" data-emotion="happy">Happy</button>
+                        <button class="emotion-btn" data-emotion="sad">Sad</button>
+                        <button class="emotion-btn" data-emotion="angry">Angry</button>
+                        <button class="emotion-btn" data-emotion="excited">Excited</button>
+                    </div>
+                </div>
+
+                <!-- Breath Control -->
+                <div class="control-group breath-control">
+                    <div class="control-header">
+                        <h4>Breath</h4>
+                        <span class="control-value" id="breathValue">0%</span>
+                    </div>
+                    <div class="precision-slider" id="breathSlider" data-param="breath" data-min="0" data-max="100" data-value="0">
+                        <div class="slider-track">
+                            <div class="slider-fill"></div>
+                            <div class="slider-handle"></div>
+                        </div>
+                    </div>
+                    <div class="breath-options">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="breathDetect">
+                            <span>Auto-detect</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="breathReplace">
+                            <span>Replace natural</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Texture Control -->
+                <div class="control-group texture-control">
+                    <div class="control-header">
+                        <h4>Texture</h4>
+                        <span class="control-value" id="textureValue">0%</span>
+                    </div>
+                    <div class="texture-controls">
+                        <div class="texture-param">
+                            <label>Roughness</label>
+                            <input type="range" id="roughness" min="0" max="100" value="0">
+                        </div>
+                        <div class="texture-param">
+                            <label>Warmth</label>
+                            <input type="range" id="warmth" min="0" max="100" value="50">
+                        </div>
+                        <div class="texture-param">
+                            <label>Air</label>
+                            <input type="range" id="air" min="0" max="100" value="20">
+                        </div>
+                        <div class="texture-param">
+                            <label>Presence</label>
+                            <input type="range" id="presence" min="0" max="100" value="50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timing Control -->
+                <div class="control-group timing-control">
+                    <div class="control-header">
+                        <h4>Timing</h4>
+                        <span class="control-value" id="timingValue">1.0x</span>
+                    </div>
+                    <div class="precision-slider" id="timingSlider" data-param="timing" data-min="0.25" data-max="4" data-value="1">
+                        <div class="slider-track">
+                            <div class="slider-fill"></div>
+                            <div class="slider-handle"></div>
+                        </div>
+                    </div>
+                    <div class="timing-presets">
+                        <button class="timing-btn" data-speed="0.5">0.5x</button>
+                        <button class="timing-btn" data-speed="0.75">0.75x</button>
+                        <button class="timing-btn active" data-speed="1">1x</button>
+                        <button class="timing-btn" data-speed="1.5">1.5x</button>
+                        <button class="timing-btn" data-speed="2">2x</button>
+                    </div>
+                </div>
+
+                <!-- Harmonics Control -->
+                <div class="control-group harmonics-control">
+                    <div class="control-header">
+                        <h4>Harmonics</h4>
+                        <span class="control-value" id="harmonicsValue">0%</span>
+                    </div>
+                    <div class="harmonics-visual">
+                        <canvas id="harmonicsCanvas" width="200" height="100"></canvas>
+                    </div>
+                    <div class="harmonics-params">
+                        <input type="range" id="harmonic2" min="0" max="100" value="50" label="2nd">
+                        <input type="range" id="harmonic3" min="0" max="100" value="30" label="3rd">
+                        <input type="range" id="harmonic4" min="0" max="100" value="20" label="4th">
+                        <input type="range" id="harmonic5" min="0" max="100" value="10" label="5th">
+                    </div>
+                </div>
+
+                <!-- Apply Button -->
+                <div class="apply-section">
+                    <button class="apply-btn" id="applyEffectsBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                        Apply All Changes
+                    </button>
+                    <button class="reset-btn" id="resetControlsBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                            <path d="M3 3v5h5"/>
+                        </svg>
+                        Reset
+                    </button>
+                </div>
+            </aside>
+        </main>
+
+        <!-- Edit History Bar -->
+        <div class="history-bar" id="historyBar">
+            <div class="history-controls">
+                <button class="history-btn" id="undoBtn" title="Undo (Ctrl+Z)" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 7v6h6"/>
+                        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                    </svg>
+                </button>
+                <button class="history-btn" id="redoBtn" title="Redo (Ctrl+Y)" disabled>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 7v6h-6"/>
+                        <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/>
+                    </svg>
+                </button>
+                <span class="history-count" id="historyCount">0 changes</span>
+            </div>
+            <div class="history-timeline" id="historyTimeline">
+                <!-- History items will be rendered here -->
+            </div>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="toast-container" id="toastContainer"></div>
+
+        <!-- Modal Container -->
+        <div class="modal-overlay" id="modalOverlay">
+            <div class="modal" id="modal">
+                <div class="modal-header">
+                    <h3 id="modalTitle">Modal Title</h3>
+                    <button class="modal-close" id="modalClose">&times;</button>
+                </div>
+                <div class="modal-content" id="modalContent"></div>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div class="modal-overlay" id="exportModal">
+            <div class="modal export-modal">
+                <div class="modal-header">
+                    <h3>Export Project</h3>
+                    <button class="modal-close" onclick="document.getElementById('exportModal').classList.remove('visible')">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="export-options">
+                        <div class="option-group">
+                            <label>Format</label>
+                            <select id="exportFormat">
+                                <option value="wav">WAV (Lossless)</option>
+                                <option value="flac">FLAC (Compressed)</option>
+                                <option value="mp3">MP3 (320kbps)</option>
+                                <option value="m4a">M4A (AAC)</option>
+                                <option value="ogg">OGG Vorbis</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label>Sample Rate</label>
+                            <select id="exportSampleRate">
+                                <option value="44100">44.1 kHz</option>
+                                <option value="48000">48 kHz</option>
+                                <option value="96000">96 kHz</option>
+                            </select>
+                        </div>
+                        <div class="option-group">
+                            <label>Bit Depth</label>
+                            <select id="exportBitDepth">
+                                <option value="16">16-bit</option>
+                                <option value="24" selected>24-bit</option>
+                                <option value="32">32-bit Float</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="export-actions">
+                        <button class="export-btn primary" id="doExportBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Source Modal -->
+        <div class="modal-overlay" id="inputModal">
+            <div class="modal input-modal">
+                <div class="modal-header">
+                    <h3>Input Source</h3>
+                    <button class="modal-close" onclick="document.getElementById('inputModal').classList.remove('visible')">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="input-options">
+                        <button class="input-option" id="micInputBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+                            </svg>
+                            <span>Microphone</span>
+                        </button>
+                        <button class="input-option" id="fileInputBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <polyline points="14 2 14 8 20 8"/>
+                            </svg>
+                            <span>Audio File</span>
+                        </button>
+                        <button class="input-option" id="ttsInputBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+                                <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                            </svg>
+                            <span>Text-to-Speech</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

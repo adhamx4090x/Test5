@@ -1,0 +1,372 @@
+name: Build Windows
+
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - '**.js'
+      - '**.json'
+      - '**.html'
+      - '**.css'
+      - 'builds/**'
+      - '.github/workflows/**'
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: false
+        default: ''
+      build_type:
+        description: 'Build type'
+        required: false
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+env:
+  NODE_VERSION: '20.x'
+  ELECTRON_VERSION: '28.0.0'
+  PLATFORM: 'windows'
+
+jobs:
+  setup:
+    name: Setup Environment
+    runs-on: windows-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          clean: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Cache Electron
+        uses: actions/cache@v4
+        id: electron-cache
+        with:
+          path: |
+            ~/.electron
+            node_modules/electron
+          key: ${{ runner.os }}-electron-${{ env.ELECTRON_VERSION }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Install dependencies
+        run: npm ci
+        shell: pwsh
+
+      - name: Verify setup
+        run: |
+          node --version
+          npm --version
+
+    outputs:
+      node_version: ${{ env.NODE_VERSION }}
+
+  lint:
+    name: Lint Code
+    runs-on: windows-latest
+    needs: setup
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        shell: pwsh
+
+      - name: Run ESLint
+        run: npx eslint . --ext .js,.html,.css
+        shell: pwsh
+
+      - name: Check formatting
+        run: npx prettier --check "**/*.{js,html,css,json}"
+        shell: pwsh
+
+  test:
+    name: Run Tests
+    runs-on: windows-latest
+    needs: setup
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        shell: pwsh
+
+      - name: Run unit tests
+        run: npm test
+        shell: pwsh
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-windows
+          path: |
+            test-results/
+            coverage/
+          retention-days: 7
+
+      - name: Publish test coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./coverage
+          flags: windows
+
+  build-electron:
+    name: Build Electron for Windows
+    runs-on: windows-latest
+    needs: [lint, test]
+    timeout-minutes: 30
+
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x64, ia32]
+        include:
+          - architecture: x64
+            artifact_name: neural-voice-os-x64
+          - architecture: ia32
+            artifact_name: neural-voice-os-ia32
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        shell: pwsh
+
+      - name: Install Electron Builder
+        run: npm install --save-dev electron-builder
+        shell: pwsh
+
+      - name: Create build directory
+        run: |
+          mkdir -Force ./build
+          mkdir -Force ./dist
+        shell: pwsh
+
+      - name: Download Electron dependencies
+        run: npx electron-builder install-app-deps
+        shell: pwsh
+        env:
+          ELECTRON_MIRROR: https://npmmirror.com/mirrors/electron/
+
+      - name: Build Windows installer
+        run: |
+          $env:ARCH = "${{ matrix.architecture }}"
+          $env:BUILD_TYPE = "${{ github.event.inputs.build_type || 'release' }}"
+          npx electron-builder --win --${{ env.BUILD_TYPE }} --${{ matrix.architecture }}
+        shell: pwsh
+        env:
+          CSC_LINK: ${{ secrets.WINDOWS_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+          NODE_ENV: production
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            dist/
+            !dist/*.blockmap
+          retention-days: 30
+
+      - name: Create checksum
+        if: ${{ !matrix.architecture || matrix.architecture == 'x64' }}
+        run: |
+          Get-FileHash -Algorithm SHA256 -Path dist/*.exe | ForEach-Object { $_.Hash + "  " + $_.FileName } | Out-File -FilePath dist/SHA256SUMS.txt -Encoding ASCII
+        shell: pwsh
+
+      - name: Upload checksum
+        if: ${{ !matrix.architecture || matrix.architecture == 'x64' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: checksums-windows
+          path: dist/SHA256SUMS.txt
+          retention-days: 30
+
+  build-tauri:
+    name: Build Tauri for Windows
+    runs-on: windows-latest
+    needs: [lint, test]
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+        shell: pwsh
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@v1
+        with:
+          toolchain: stable
+          targets: 'x86_64-pc-windows-msvc'
+          default: true
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo
+            ./builds/tauri/target
+          key: ${{ runner.os }}-tauri-${{ hashFiles('builds/tauri/**/Cargo.lock') }}
+
+      - name: Install Tauri CLI
+        run: cargo install tauri-cli
+        shell: pwsh
+
+      - name: Build Tauri application
+        working-directory: ./builds/tauri
+        run: |
+          $env:BUILD_TYPE = "${{ github.event.inputs.build_type || 'release' }}"
+          cargo tauri build --bundles msi --target x86_64-pc-windows-msvc --config tauri.conf.json
+        shell: pwsh
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: tauri-windows
+          path: |
+            builds/tauri/target/release/bundle/**
+          retention-days: 30
+
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: [build-electron, build-tauri]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(node -e "console.log(require('./package.json').version)")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building release v$VERSION"
+
+      - name: Download Electron artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: neural-voice-os-*
+          path: release/electron
+          merge-multiple: true
+
+      - name: Download Tauri artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tauri-windows
+          path: release/tauri
+          merge-multiple: true
+
+      - name: Create release notes
+        run: |
+          cat > release/RELEASE_NOTES.md << 'EOF'
+          # Neural Voice OS v${{ steps.version.outputs.version }}
+          
+          ## What's New
+          - Enhanced voice recognition accuracy
+          - Improved audio processing
+          - Better cross-platform compatibility
+          
+          ## Bug Fixes
+          - Fixed various performance issues
+          - Resolved audio recording problems
+          
+          ## Known Issues
+          - None reported
+          
+          ## Installation
+          Download the appropriate installer for your system.
+          EOF
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: Neural Voice OS v${{ steps.version.outputs.version }}
+          body_path: release/RELEASE_NOTES.md
+          files: |
+            release/electron/*.exe
+            release/electron/*.msi
+            release/tauri/*.msi
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [create-release]
+    if: always()
+    timeout-minutes: 5
+
+    steps:
+      - name: Send success notification
+        if: ${{ needs.create-release.result == 'success' }}
+        run: |
+          echo "Build completed successfully!"
+        shell: bash
+
+      - name: Send failure notification
+        if: ${{ needs.create-release.result == 'failure' }}
+        run: |
+          echo "Build failed!"
+          exit 1
+        shell: bash

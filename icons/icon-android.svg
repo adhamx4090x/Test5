@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="androidBg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#3DDC84"/>
+      <stop offset="100%" style="stop-color:#2DBF6A"/>
+    </linearGradient>
+    <linearGradient id="androidScreen" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1A1A1A"/>
+      <stop offset="100%" style="stop-color:#0D0D0D"/>
+    </linearGradient>
+    <filter id="androidShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  
+  <!-- Phone body -->
+  <rect x="128" y="48" width="256" height="416" rx="40" ry="40" fill="url(#androidBg)" filter="url(#androidShadow)"/>
+  
+  <!-- Screen -->
+  <rect x="144" y="80" width="224" height="320" rx="16" ry="16" fill="url(#androidScreen)"/>
+  
+  <!-- Status bar -->
+  <rect x="144" y="80" width="224" height="32" rx="16" ry="16" fill="#0D0D0D"/>
+  <circle cx="200" cy="96" r="4" fill="#FFFFFF" opacity="0.8"/>
+  <rect x="212" y="94" width="48" height="4" rx="2" ry="2" fill="#FFFFFF" opacity="0.6"/>
+  <rect x="340" y="94" width="16" height="10" rx="2" ry="2" fill="#FFFFFF" opacity="0.8"/>
+  
+  <!-- Neural network visualization -->
+  <g transform="translate(176, 176)">
+    <!-- Animated pulse ring -->
+    <circle cx="80" cy="80" r="60" fill="none" stroke="#00F0FF" stroke-width="2" opacity="0.3">
+      <animate attributeName="r" values="40;70;40" dur="2s" repeatCount="indefinite"/>
+      <animate attributeName="opacity" values="0.5;0.1;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Neural nodes -->
+    <circle cx="40" cy="40" r="10" fill="#00F0FF"/>
+    <circle cx="80" cy="40" r="10" fill="#00F0FF"/>
+    <circle cx="120" cy="40" r="10" fill="#00F0FF"/>
+    
+    <circle cx="40" cy="80" r="10" fill="#00F0FF"/>
+    <circle cx="80" cy="80" r="14" fill="#FFFFFF"/>
+    <circle cx="120" cy="80" r="10" fill="#00F0FF"/>
+    
+    <circle cx="40" cy="120" r="10" fill="#00F0FF"/>
+    <circle cx="80" cy="120" r="10" fill="#00F0FF"/>
+    <circle cx="120" cy="120" r="10" fill="#00F0FF"/>
+    
+    <!-- Connections -->
+    <g stroke="#00F0FF" stroke-width="2" opacity="0.6">
+      <line x1="40" y1="40" x2="80" y2="40"/>
+      <line x1="80" y1="40" x2="120" y2="40"/>
+      <line x1="40" y1="40" x2="40" y2="80"/>
+      <line x1="80" y1="40" x2="80" y2="80"/>
+      <line x1="120" y1="40" x2="120" y2="80"/>
+      <line x1="40" y1="80" x2="80" y2="80"/>
+      <line x1="80" y1="80" x2="120" y2="80"/>
+      <line x1="40" y1="80" x2="40" y2="120"/>
+      <line x1="80" y1="80" x2="80" y2="120"/>
+      <line x1="120" y1="80" x2="120" y2="120"/>
+      <line x1="40" y1="120" x2="80" y2="120"/>
+      <line x1="80" y1="120" x2="120" y2="120"/>
+    </g>
+  </g>
+  
+  <!-- Voice wave visualization at bottom -->
+  <g transform="translate(176, 340)" fill="#00FF88">
+    <rect x="0" y="20" width="8" height="20" rx="4">
+      <animate attributeName="height" values="10;30;10" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="15;5;15" dur="0.8s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="16" y="12" width="8" height="36" rx="4">
+      <animate attributeName="height" values="20;40;20" dur="0.6s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="10;0;10" dur="0.6s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="32" y="8" width="8" height="44" rx="4">
+      <animate attributeName="height" values="30;50;30" dur="0.7s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="5;-5;5" dur="0.7s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="48" y="16" width="8" height="28" rx="4">
+      <animate attributeName="height" values="15;35;15" dur="0.5s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="12;-2;12" dur="0.5s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="64" y="20" width="8" height="20" rx="4">
+      <animate attributeName="height" values="10;30;10" dur="0.9s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="15;5;15" dur="0.9s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="80" y="14" width="8" height="32" rx="4">
+      <animate attributeName="height" values="18;38;18" dur="0.65s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="11;-1;11" dur="0.65s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="96" y="18" width="8" height="24" rx="4">
+      <animate attributeName="height" values="12;32;12" dur="0.75s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="14;4;14" dur="0.75s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="112" y="22" width="8" height="16" rx="4">
+      <animate attributeName="height" values="8;28;8" dur="0.85s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="16;6;16" dur="0.85s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="128" y="16" width="8" height="28" rx="4">
+      <animate attributeName="height" values="15;35;15" dur="0.55s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="12;-2;12" dur="0.55s" repeatCount="indefinite"/>
+    </rect>
+    <rect x="144" y="20" width="8" height="20" rx="4">
+      <animate attributeName="height" values="10;30;10" dur="0.8s" repeatCount="indefinite"/>
+      <animate attributeName="y" values="15;5;15" dur="0.8s" repeatCount="indefinite"/>
+    </rect>
+  </g>
+  
+  <!-- Bottom navigation -->
+  <rect x="144" y="400" width="224" height="32" rx="0" ry="0" fill="#0D0D0D"/>
+  <circle cx="184" cy="416" r="8" fill="#00F0FF" opacity="0.8"/>
+  <circle cx="256" cy="416" r="8" fill="#FFFFFF" opacity="0.6"/>
+  <circle cx="328" cy="416" r="8" fill="#FFFFFF" opacity="0.6"/>
+  
+  <!-- Android back/home buttons -->
+  <path d="M176 420 L172 428 L180 428 Z" fill="#FFFFFF" opacity="0.6"/>
+  <rect x="244" y="424" width="24" height="4" rx="2" ry="2" fill="#FFFFFF" opacity="0.6"/>
+  <path d="M316 420 L320 428 L332 428 L328 420 Z" fill="#FFFFFF" opacity="0.6"/>
+</svg>

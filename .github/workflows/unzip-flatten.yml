@@ -1,0 +1,77 @@
+name: Unzip Files and Flatten Repo
+
+on:
+  push:
+    paths:
+      - '**.zip'
+
+jobs:
+  unzip-and-flatten:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract ZIP and rename conflicting folders
+        run: |
+          CONFLICTING_FOLDERS=".git .github"
+          
+          while IFS= read -r -d '' zip_file; do
+            echo "Processing: $zip_file"
+            
+            TEMP_DIR=$(mktemp -d)
+            trap "rm -rf '$TEMP_DIR'" EXIT
+            
+            unzip -o -q "$zip_file" -d "$TEMP_DIR"
+            
+            cd "$TEMP_DIR"
+            
+            for folder in $CONFLICTING_FOLDERS; do
+              if [ -d "$folder" ]; then
+                echo "Renaming: $folder -> _${folder}"
+                mv "$folder" "_${folder}"
+              fi
+            done
+            
+            cd "$OLDPWD"
+            cp -r "$TEMP_DIR"/* .
+            rm -f "$zip_file"
+            
+          done < <(find . -maxdepth 1 -type f -name "*.zip" -print0)
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Check for changes
+        id: git-status
+        run: |
+          if git status --porcelain | grep -q .; then
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: steps.git-status.outputs.has_changes == 'true'
+        run: |
+          git add -A
+          git commit -m "Extract and flatten ZIP contents - $(date '+%Y-%m-%d %H:%M:%S')"
+          git push
+
+      - name: Delete workflow file itself
+        if: always()
+        run: |
+          WORKFLOW_FILE=".github/workflows/unzip-flatten.yml"
+          if [ -f "$WORKFLOW_FILE" ]; then
+            rm -f "$WORKFLOW_FILE"
+            git add -A
+            git commit -m "Remove self-deleting workflow - $(date '+%Y-%m-%d %H:%M:%S')" || true
+            git push || true
+          fi
+
